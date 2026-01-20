@@ -158,6 +158,7 @@ describe('Practice Test Suite', () => {
     cy.get('#clock-div').click()
     cy.get('#clock-div').should('have.text', '1489449600')
   })
+  
 
   it('should test tick functionality for time advancement', () => {
     // create the date in UTC so it's always the same
@@ -487,5 +488,57 @@ describe('Practice Test Suite', () => {
     cy.window().then((win) => {
       expect(sessionExpired).to.be.true
     })
+  })
+})
+
+context('Waiting', () => {
+  beforeEach(() => {
+    cy.visit('https://example.cypress.io/commands/waiting')
+  })
+  // BE CAREFUL of adding unnecessary wait times.
+  // https://on.cypress.io/best-practices#Unnecessary-Waiting
+
+  // https://on.cypress.io/wait
+  it('cy.wait() - wait for a specific amount of time', () => {
+    cy.get('.wait-input1').type('Wait 1000ms after typing')
+    cy.wait(1000)
+    cy.get('.wait-input2').type('Wait 1000ms after typing')
+    cy.wait(1000)
+    cy.get('.wait-input3').type('Wait 1000ms after typing')
+    cy.wait(1000)
+  })
+
+  it('cy.wait() - wait for a specific route', () => {
+    // Listen to GET to comments/1
+    cy.intercept('GET', '**/comments/*').as('getComment')
+
+    // we have code that gets a comment when
+    // the button is clicked in scripts.js
+    cy.get('.network-btn').click()
+
+    // wait for GET comments/1
+    cy.wait('@getComment').its('response.statusCode').should('be.oneOf', [200, 304])
+  })
+})
+
+
+context('Window', () => {
+  beforeEach(() => {
+    cy.visit('https://example.cypress.io/commands/window')
+  })
+
+  it('cy.window() - get the global window object', () => {
+    // https://on.cypress.io/window
+    cy.window().should('have.property', 'top')
+  })
+
+  it('cy.document() - get the document object', () => {
+    // https://on.cypress.io/document
+    cy.document().should('have.property', 'charset').and('eq', 'UTF-8')
+  })
+
+  it('cy.title() - get the title', () => {
+    // https://on.cypress.io/title
+    cy.title().should('include', 'Kitchen Sink')
   })
 })
